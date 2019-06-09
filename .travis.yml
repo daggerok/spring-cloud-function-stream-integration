@@ -32,13 +32,13 @@ addons:
       - python3-setuptools
 install: true
 before_install:
-  # gradle
-  - curl -s "https://get.sdkman.io" | bash
-  - source "$HOME/.sdkman/bin/sdkman-init.sh"
-  - sed -i -e 's/^sdkman_auto_answer=false$/sdkman_auto_answer=true/g' "$HOME/.sdkman/etc/config"
-  - sdk use gradle 5.5-rc-2
-  - source "$HOME/.sdkman/bin/sdkman-init.sh"
-  #
+  ## gradle
+  #- curl -s "https://get.sdkman.io" | bash
+  #- source "$HOME/.sdkman/bin/sdkman-init.sh"
+  #- sed -i -e 's/^sdkman_auto_answer=false$/sdkman_auto_answer=true/g' "$HOME/.sdkman/etc/config"
+  #- sdk use gradle 5.5-rc-2
+  #- source "$HOME/.sdkman/bin/sdkman-init.sh"
+  #@
   - docker-compose -v
   - export PATH=$HOME/.local/bin:$PATH
   - pip3 install --user $(whoami) --upgrade pip >/dev/null # pip3 -> pip
@@ -47,7 +47,7 @@ before_install:
   - docker-compose -v
   #
   - source <(curl -fsSL https://raw.github.com/daggerok/bash-functions/master/main.bash)
-  - stop_any 5432 5672 27017 8080 8000 8081 80 80
+  - stop_any 5432 5672 15672 27017 8080 8000 8081 80 80
 
 cache:
   pip: true
