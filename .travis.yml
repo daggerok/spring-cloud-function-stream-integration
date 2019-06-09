@@ -48,17 +48,14 @@ before_install:
   #
   - source <(curl -fsSL https://raw.github.com/daggerok/bash-functions/master/main.bash)
   - stop_any 5432 5672 15672 27017 8080 8000 8081 80 80
-
 cache:
   pip: true
   packages: true
   directories:
     - $HOME/.m2
     - $HOME/.docker
-
 jobs:
   include:
-
     - stage: test
       name: test
       script:
