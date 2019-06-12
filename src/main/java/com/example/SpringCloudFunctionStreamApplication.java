@@ -4,9 +4,11 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.stream.annotation.EnableBinding;
+import org.springframework.cloud.stream.messaging.Processor;
 import org.springframework.cloud.stream.messaging.Source;
 import org.springframework.context.annotation.Bean;
 import org.springframework.messaging.support.MessageBuilder;
@@ -17,7 +19,6 @@ import java.util.function.Function;
 
 @Data
 @NoArgsConstructor
-@AllArgsConstructor(staticName = "of")
 class StringPayload {
   private String string;
 }
@@ -35,7 +36,7 @@ class IntegerPayload {
 public class SpringCloudFunctionStreamApplication {
 
   @Bean
-  public Consumer<Flux<StringPayload>> toBinder(Source source) {
+  public Consumer<Flux<StringPayload>> process(Source source) {
     return payloads -> payloads.map(StringPayload::getString)
                                .doOnNext(o -> log.info("=> {}", o))
                                .map(MessageBuilder::withPayload)
@@ -67,7 +68,7 @@ public class SpringCloudFunctionStreamApplication {
   public static void main(String[] args) {
     SpringApplication.run(
         SpringCloudFunctionStreamApplication.class,
-        "--spring.cloud.function.definition=toBinder",
+        "--spring.cloud.function.definition=process",
         "--spring.cloud.stream.function.definition=doubleIt|produceIt|logIt"
     );
   }
