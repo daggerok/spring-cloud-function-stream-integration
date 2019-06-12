@@ -56,8 +56,9 @@ cache:
     - $HOME/.docker
 jobs:
   include:
-    - stage: test
-      name: test
+    - stage: openjdk8
+      jdk: openjdk8
+      name: "integration test"
       script:
         - docker run --rm -i --name rabbitmq -p 5672:5672 rabbitmq:3.7.15-management-alpine &
         - cd $TRAVIS_BUILD_DIR/ && ./mvnw >/dev/null
@@ -71,3 +72,7 @@ jobs:
         - sleep 1s
         - stop_any 80 8080
         - docker rm -f -v rabbitmq
+    - stage: openjdk8
+      jdk: openjdk8
+      name: "maven updates"
+      script: cd $TRAVIS_BUILD_DIR && ./mvnw versions:display-property-updates
