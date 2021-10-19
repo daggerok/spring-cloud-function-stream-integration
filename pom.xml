@@ -14,8 +14,8 @@
   <version>1.0-SNAPSHOT</version>
   <properties>
     <java.version>1.8</java.version>
-    <lombok.version>1.18.20</lombok.version>
-    <spring-cloud.version>Hoxton.SR12</spring-cloud.version>
+    <lombok.version>1.18.22</lombok.version>
+    <spring-cloud.version>2020.0.4</spring-cloud.version>
   </properties>
   <dependencyManagement>
     <dependencies>

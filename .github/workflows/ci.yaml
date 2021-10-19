@@ -52,8 +52,8 @@ jobs:
           echo 3 | http post :8080/produceIt
           curl -isS 0:8080/produceIt -d 3 -H'Content-Type:application/json' ; echo
           #
-          echo '[{"integer":-123}]' | http post :8080/logIt
-          curl -isS 0:8080/logIt -d '[{"integer":-123}]' -H'Content-Type:application/json' ; echo
+          echo '{"integer":-123}' | http post :8080/logIt
+          curl -isS 0:8080/logIt -d '{"integer":-123}' -H'Content-Type:application/json' ; echo
           #
           ./mvnw spring-boot:stop
       - run: docker stop rabbitmq

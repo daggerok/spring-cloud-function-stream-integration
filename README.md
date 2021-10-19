@@ -29,9 +29,9 @@ echo 3 | http post :8080/produceIt
 curl -isS 0:8080/produceIt -d 3 -H'Content-Type:application/json' ; echo
 
 # and
-echo '[{"integer":-123}]' | http post :8080/logIt
+echo '{"integer":-123}' | http post :8080/logIt
 # or
-curl -isS 0:8080/logIt -d '[{"integer":-123}]' -H'Content-Type:application/json' ; echo
+curl -isS 0:8080/logIt -d '{"integer":-123}' -H'Content-Type:application/json' ; echo
 
 ./mvnw spring-boot:stop
 docker stop rabbitmq
