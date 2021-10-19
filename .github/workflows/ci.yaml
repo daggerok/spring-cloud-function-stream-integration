@@ -1,0 +1,87 @@
+name: CI
+on:
+  workflow_dispatch:
+    inputs:
+      trigger:
+        description: Type something to triggre manual jobs
+        required: false
+        default: ''
+  pull_request:
+    branches: [ master ]
+  push:
+    branches: [ master ]
+    paths:
+      - 'pom.xml'
+      - 'src/**'
+jobs:
+  tests:
+    if: github.event.inputs.trigger == ''
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/cache@v2
+        id: ci
+        with:
+          path: |
+            ~/.npm
+            ~/.node
+            ~/.local
+            ~/.gradle
+            ~/.docker
+            ~/.m2/repository
+            !~/.m2/repository/com/gituhb/daggerok
+          key: ${{ runner.os }}-${{ hashFiles('**/pom.xml') }}
+      - uses: actions/setup-java@v1
+        with:
+          java-version: 1.8
+      - run: docker run -d --rm --name rabbitmq -p 5672:5672 -p 15672:15672 rabbitmq:3.7.15-management-alpine
+      - run: sudo apt install -y httpie
+      - run: ./mvnw clean test
+      - run: |
+          ./mvnw spring-boot:start
+          #
+          http --ignore-stdin get :8080 string=1
+          http --ignore-stdin get :8080 string=2
+          http --ignore-stdin get :8080 string=0
+          #
+          http --ignore-stdin :8080/process string=1
+          http --ignore-stdin :8080/process string=2
+          http --ignore-stdin :8080/process string=0
+          #
+          echo '[0,1,1,2,3,5,8,13,21,34,55]' | http :8080/doubleIt
+          curl -isS 0:8080/doubleIt -d '[0,1,1,2,3,5,8,13,21,34,55]' -H'Content-Type:application/json' ; echo
+          #
+          echo 3 | http post :8080/produceIt
+          curl -isS 0:8080/produceIt -d 3 -H'Content-Type:application/json' ; echo
+          #
+          echo '[{"integer":-123}]' | http post :8080/logIt
+          curl -isS 0:8080/logIt -d '[{"integer":-123}]' -H'Content-Type:application/json' ; echo
+          #
+          ./mvnw spring-boot:stop
+      - run: docker stop rabbitmq
+  dependency-updates:
+    if: github.event.inputs.trigger != ''
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - run: |
+          echo "Trigger: ${{ github.event.inputs.trigger }}"
+      - uses: actions/checkout@v2
+      - uses: actions/cache@v2
+        id: ci
+        with:
+          path: |
+            ~/.npm
+            ~/.node
+            ~/.local
+            ~/.gradle
+            ~/.docker
+            ~/.m2/repository
+            !~/.m2/repository/com/gituhb/daggerok
+          key: ${{ runner.os }}-testing-spring-cloud-stream-rabbitmq-global-cache
+          #key: ${{ runner.os }}-${{ hashFiles('**/settings.gradle.kts', '**/build.gradle.kts', '**/build.gradle') }}
+      - uses: actions/setup-java@v1
+        with:
+          java-version: 11
+      - run: ./gradlew dependencyUpdates -Drevision=release
