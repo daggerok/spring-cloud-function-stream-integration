@@ -6,10 +6,7 @@ on:
         description: Type something to triggre manual jobs
         required: false
         default: ''
-  pull_request:
-    branches: [ master ]
   push:
-    branches: [ master ]
     paths:
       - 'pom.xml'
       - 'src/**'
@@ -79,9 +76,10 @@ jobs:
             ~/.docker
             ~/.m2/repository
             !~/.m2/repository/com/gituhb/daggerok
-          key: ${{ runner.os }}-testing-spring-cloud-stream-rabbitmq-global-cache
-          #key: ${{ runner.os }}-${{ hashFiles('**/settings.gradle.kts', '**/build.gradle.kts', '**/build.gradle') }}
+          key: ${{ runner.os }}-${{ hashFiles('**/pom.xml') }}
       - uses: actions/setup-java@v1
         with:
-          java-version: 11
-      - run: ./gradlew dependencyUpdates -Drevision=release
+          java-version: 1.8
+      - run: ./mvnw versions:display-parent-updates
+      - run: ./mvnw versions:display-plugin-updates
+      - run: ./mvnw versions:display-property-updates
