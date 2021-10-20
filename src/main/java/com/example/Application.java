@@ -7,10 +7,8 @@ import lombok.NoArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.cloud.stream.annotation.EnableBinding;
-import org.springframework.cloud.stream.messaging.Source;
+import org.springframework.cloud.stream.function.StreamBridge;
 import org.springframework.context.annotation.Bean;
-import org.springframework.messaging.support.MessageBuilder;
 import reactor.core.publisher.Flux;
 
 import java.util.function.Consumer;
@@ -31,16 +29,14 @@ class IntegerPayload {
 
 @Log4j2
 @SpringBootApplication
-@EnableBinding(Source.class)
 public class Application {
 
   @Bean
-  Consumer<Flux<StringPayload>> process(Source source) {
+  Consumer<Flux<StringPayload>> process(StreamBridge streamBridge) {
     return payloads -> payloads.map(StringPayload::getString)
-                               .doOnNext(o -> log.info("process => {}", o))
-                               .map(MessageBuilder::withPayload)
-                               .map(MessageBuilder::build)
-                               .subscribe(source.output()::send);
+                               .doOnNext(str -> log.info("process => {}", str))
+                               .subscribe(str -> streamBridge.send("idestination", str/*
+                                  (Object) str, org.springframework.util.MimeType.valueOf("application/json")*/));
   }
 
   @Bean
@@ -67,8 +63,12 @@ public class Application {
   public static void main(String[] args) {
     SpringApplication.run(
         Application.class,
+        "--spring.main.lazy-initialization=false",
         "--spring.cloud.function.definition=process",
-        "--spring.cloud.stream.function.definition=doubleIt|produceIt|logIt"
+        "--spring.cloud.stream.function.definition=doubleIt|produceIt|logIt",
+        "--spring.cloud.stream.bindings.doubleIt|produceIt|logIt-in-0.destination=idestination",
+        "--spring.cloud.stream.bindings.doubleIt|produceIt|logIt-in-0.group=igroup",
+        "--spring.cloud.stream.rabbit.bindings.doubleIt|produceIt|logIt-in-0.consumer.durable-subscription=true"
     );
   }
 }
