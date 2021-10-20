@@ -36,3 +36,6 @@ curl -isS 0:8080/logIt -d '{"integer":-123}' -H'Content-Type:application/json' ;
 ./mvnw spring-boot:stop
 docker stop rabbitmq
 ```
+
+## RTFM
+* https://github.com/spring-cloud/spring-cloud-stream/blob/main/docs/src/main/asciidoc/spring-cloud-stream.adoc#sending-arbitrary-data-to-an-output-e-g-foreign-event-driven-sources
